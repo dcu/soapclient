@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/beevik/etree"
-	"github.com/ma314smith/signedxml"
+	"github.com/dcu/signedxml"
 )
 
 type Client struct {
@@ -67,29 +67,29 @@ func New(url string, opts ClientOpts) *Client {
 	}
 }
 
-// BuildEnvelope builds the envelope for the request
-func (c *Client) BuildEnvelope(op Operation) *Envelope {
-	body := Body{
+// buildEnvelope builds the envelope for the request
+func (c *Client) buildEnvelope(op Operation) *envelope {
+	body := requestBody{
 		Operation: op,
 		NS:        "http://schemas.xmlsoap.org/soap/envelope/",
 		ID:        generateID("id"),
 		Wsu:       "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
 	}
 
-	signInfo := &HeaderSecuritySignatureSignedInfo{
-		CanonicalizationMethod: &CanonicalizationMethod{
+	signInfo := &headerSecuritySignatureSignedInfo{
+		CanonicalizationMethod: &canonicalizationMethod{
 			Algorithm: "http://www.w3.org/2001/10/xml-exc-c14n#",
 		},
-		SignatureMethod: &SignatureMethod{
+		SignatureMethod: &signatureMethod{
 			Algorithm: "http://www.w3.org/2000/09/xmldsig#rsa-sha1",
 		},
-		DsReference: &Reference{
+		DsReference: &reference{
 			URI:         "#" + body.ID,
 			DigestValue: "",
-			DigestMethod: &DigestMethod{
+			DigestMethod: &digestMethod{
 				Algorithm: "http://www.w3.org/2000/09/xmldsig#sha1",
 			},
-			Transforms: &Transforms{
+			Transforms: &transforms{
 				Transform: &transform{
 					Algorithm: "http://www.w3.org/2001/10/xml-exc-c14n#",
 				},
@@ -98,31 +98,31 @@ func (c *Client) BuildEnvelope(op Operation) *Envelope {
 	}
 
 	certIssuerName, certSerialNumber := c.opts.getCertInfo()
-	reqHeader := &Header{
+	reqHeader := &header{
 		XMLName: xml.Name{},
-		Security: &HeaderSecurity{
+		Security: &headerSecurity{
 			Wsse: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
-			UsernameToken: &HeaderSecurityUsernameToken{
+			UsernameToken: &headerSecurityUsernameToken{
 				Username: c.opts.Username,
-				Password: &HeaderSecurityUsernameTokenPassword{
+				Password: &headerSecurityUsernameTokenPassword{
 					Type: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText",
 					Text: c.opts.Password,
 				},
 			},
-			Signature: &HeaderSecuritySignature{
+			Signature: &headerSecuritySignature{
 				ID:             generateID("SIG"),
 				Xmlns:          "http://www.w3.org/2000/09/xmldsig#",
 				SignatureValue: "",
 				SignedInfo:     signInfo,
-				KeyInfo: &HeaderSecuritySignatureKeyInfo{
+				KeyInfo: &headerSecuritySignatureKeyInfo{
 					ID: generateID("KI"),
-					SecurityTokenReference: KeyInfoSecurityTokenReference{
-						X509Data: X509Data{
-							X509IssuerSerial: X509IssuerSerial{
+					SecurityTokenReference: keyInfoSecurityTokenReference{
+						X509Data: x509Data{
+							X509IssuerSerial: x509IssuerSerial{
 								X509IssuerName:   certIssuerName,
 								X509SerialNumber: certSerialNumber,
 							},
-							X509Certificate: X509Certificate{Text: base64.StdEncoding.EncodeToString(c.opts.Certificate.Certificate[0])},
+							X509Certificate: x509Certificate{Text: base64.StdEncoding.EncodeToString(c.opts.Certificate.Certificate[0])},
 						},
 					},
 				},
@@ -130,7 +130,7 @@ func (c *Client) BuildEnvelope(op Operation) *Envelope {
 		},
 	}
 
-	envelope := &Envelope{
+	envelope := &envelope{
 		Soapenv: "http://schemas.xmlsoap.org/soap/envelope/",
 		V1:      "http://ws.hc2.dc.com/v1",
 		Body:    body,
@@ -142,7 +142,7 @@ func (c *Client) BuildEnvelope(op Operation) *Envelope {
 
 // RawQuery does a query and returns the response
 func (c *Client) RawQuery(op Operation) ([]byte, error) {
-	envelope := c.BuildEnvelope(op)
+	envelope := c.buildEnvelope(op)
 
 	xmlBytes, err := xml.Marshal(envelope)
 	if err != nil {

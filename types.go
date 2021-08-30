@@ -5,76 +5,76 @@ import (
 	"log"
 )
 
-type Envelope struct {
+type envelope struct {
 	XMLName xml.Name    `xml:"soap-env:Envelope"`
-	Header  *Header     `xml:"soap-env:Header"`
+	Header  *header     `xml:"soap-env:Header"`
 	Text    string      `xml:",chardata"`
 	Soapenv string      `xml:"xmlns:soap-env,attr"`
 	V1      string      `xml:"xmlns:v1,attr"`
 	Body    interface{} `xml:"soap-env:Body"`
 }
 
-type Header struct {
+type header struct {
 	XMLName  xml.Name        `xml:"soap-env:Header"`
 	Text     string          `xml:",chardata"`
-	Security *HeaderSecurity `xml:"wsse:Security"`
+	Security *headerSecurity `xml:"wsse:Security"`
 }
 
-type HeaderSecurity struct {
+type headerSecurity struct {
 	XMLName xml.Name `xml:"wsse:Security"`
 	Text    string   `xml:",chardata"`
 	Wsse    string   `xml:"xmlns:wsse,attr"`
 
-	Signature     *HeaderSecuritySignature     `xml:"Signature"`
-	UsernameToken *HeaderSecurityUsernameToken `xml:"wsse:UsernameToken"`
+	Signature     *headerSecuritySignature     `xml:"Signature"`
+	UsernameToken *headerSecurityUsernameToken `xml:"wsse:UsernameToken"`
 }
 
-type HeaderSecurityUsernameToken struct {
+type headerSecurityUsernameToken struct {
 	Text     string                               `xml:",chardata"`
 	Username string                               `xml:"wsse:Username"`
-	Password *HeaderSecurityUsernameTokenPassword `xml:"wsse:Password"`
+	Password *headerSecurityUsernameTokenPassword `xml:"wsse:Password"`
 }
 
-type HeaderSecurityUsernameTokenPassword struct {
+type headerSecurityUsernameTokenPassword struct {
 	Text string `xml:",chardata"`
 	Type string `xml:"Type,attr"`
 }
 
-type HeaderSecuritySignature struct {
+type headerSecuritySignature struct {
 	Text           string                             `xml:",chardata"`
 	ID             string                             `xml:"Id,attr"`
 	Xmlns          string                             `xml:"xmlns,attr"`
-	SignedInfo     *HeaderSecuritySignatureSignedInfo `xml:"SignedInfo"`
+	SignedInfo     *headerSecuritySignatureSignedInfo `xml:"SignedInfo"`
 	SignatureValue string                             `xml:"SignatureValue"`
-	KeyInfo        *HeaderSecuritySignatureKeyInfo    `xml:"KeyInfo"`
+	KeyInfo        *headerSecuritySignatureKeyInfo    `xml:"KeyInfo"`
 }
 
-type HeaderSecuritySignatureSignedInfo struct {
+type headerSecuritySignatureSignedInfo struct {
 	Text                   string                  `xml:",chardata"`
-	CanonicalizationMethod *CanonicalizationMethod `xml:"CanonicalizationMethod"`
-	SignatureMethod        *SignatureMethod        `xml:"SignatureMethod"`
-	DsReference            *Reference              `xml:"Reference"`
+	CanonicalizationMethod *canonicalizationMethod `xml:"CanonicalizationMethod"`
+	SignatureMethod        *signatureMethod        `xml:"SignatureMethod"`
+	DsReference            *reference              `xml:"Reference"`
 }
 
-type CanonicalizationMethod struct {
+type canonicalizationMethod struct {
 	Text      string `xml:",chardata"`
 	Algorithm string `xml:"Algorithm,attr"`
 }
 
-type SignatureMethod struct {
+type signatureMethod struct {
 	Text      string `xml:",chardata"`
 	Algorithm string `xml:"Algorithm,attr"`
 }
 
-type Reference struct {
+type reference struct {
 	Text         string        `xml:",chardata"`
 	URI          string        `xml:"URI,attr"`
-	Transforms   *Transforms   `xml:"Transforms"`
-	DigestMethod *DigestMethod `xml:"DigestMethod"`
+	Transforms   *transforms   `xml:"Transforms"`
+	DigestMethod *digestMethod `xml:"DigestMethod"`
 	DigestValue  string        `xml:"DigestValue"`
 }
 
-type Transforms struct {
+type transforms struct {
 	Text      string     `xml:",chardata"`
 	Transform *transform `xml:"Transform"`
 }
@@ -84,38 +84,38 @@ type transform struct {
 	Algorithm string `xml:"Algorithm,attr"`
 }
 
-type DigestMethod struct {
+type digestMethod struct {
 	Text      string `xml:",chardata"`
 	Algorithm string `xml:"Algorithm,attr"`
 }
 
-type HeaderSecuritySignatureKeyInfo struct {
+type headerSecuritySignatureKeyInfo struct {
 	Text                   string                        `xml:",chardata"`
 	ID                     string                        `xml:"Id,attr"`
-	SecurityTokenReference KeyInfoSecurityTokenReference `xml:"wsse:SecurityTokenReference"`
+	SecurityTokenReference keyInfoSecurityTokenReference `xml:"wsse:SecurityTokenReference"`
 }
 
-type KeyInfoSecurityTokenReference struct {
+type keyInfoSecurityTokenReference struct {
 	Text     string   `xml:",chardata"`
-	X509Data X509Data `xml:"X509Data"`
+	X509Data x509Data `xml:"X509Data"`
 }
 
-type X509Data struct {
+type x509Data struct {
 	Text             string           `xml:",chardata"`
-	X509IssuerSerial X509IssuerSerial `xml:"X509IssuerSerial"`
-	X509Certificate  X509Certificate  `xml:"X509Certificate"`
+	X509IssuerSerial x509IssuerSerial `xml:"X509IssuerSerial"`
+	X509Certificate  x509Certificate  `xml:"X509Certificate"`
 }
 
-type X509Certificate struct {
+type x509Certificate struct {
 	Text string `xml:",chardata"`
 }
 
-type X509IssuerSerial struct {
+type x509IssuerSerial struct {
 	X509IssuerName   string `xml:"X509IssuerName"`
 	X509SerialNumber string `xml:"X509SerialNumber"`
 }
 
-type Body struct {
+type requestBody struct {
 	XMLName   xml.Name `xml:"soap-env:Body"`
 	Text      string   `xml:",chardata"`
 	ID        string   `xml:"ns1:ID,attr"`

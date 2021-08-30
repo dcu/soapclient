@@ -1,7 +1,7 @@
 github.com/beevik/etree v1.1.0 h1:T0xke/WvNtMoCqgzPhkX2r4rjY3GDZFi+FjpRZY2Jbs=
 github.com/beevik/etree v1.1.0/go.mod h1:r8Aw8JqVegEf0w2fDnATrX9VpkMcyFeM0FhwO62wh+A=
-github.com/dcu/signedxml v0.0.0-20210829155731-3a18ba96a71e h1:jAHdRUzzbC48G40k1itcry6bQILoL/5Zeqy2TeTKFtQ=
-github.com/dcu/signedxml v0.0.0-20210829155731-3a18ba96a71e/go.mod h1:jfM4jnLBhtGpUjJZSmEIfmFg+qW6vTLnjzo7+tJIgkk=
+github.com/dcu/signedxml v0.0.0-20210830140642-daa1213d6dee h1:Ak1VxJSPn5L+SrGijilp3nUc3sto73SJ+OT6Dig9llI=
+github.com/dcu/signedxml v0.0.0-20210830140642-daa1213d6dee/go.mod h1:0vsJb5ELv+hS2r0a3pnGZyMdsUg4L87jNcwIr2VW0xo=
 github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1 h1:EGx4pi6eqNxGaHF6qqu48+N2wcFQ5qg5FXgOdqsJ5d8=
 github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1/go.mod h1:wJfORRmW1u3UXTncJ5qlYoELFm8eSnnEO6hX4iZ3EWY=
 github.com/jtolds/gls v4.20.0+incompatible h1:xdiiI2gbIgH/gLH7ADydsJ1uDOEzR8yvV7C0MuV77Wo=
