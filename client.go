@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/beevik/etree"
 	"github.com/ma314smith/signedxml"
 )
 
@@ -186,5 +187,24 @@ func (c *Client) RawQuery(op Operation) ([]byte, error) {
 
 	defer func() { _ = response.Body.Close() }()
 
-	return ioutil.ReadAll(response.Body)
+	data, err := ioutil.ReadAll(response.Body)
+
+	if op.Verbose {
+		log.Println("RESPONSE:", string(data))
+	}
+
+	return data, err
+}
+
+// Query performs the query and returns a *etree.Document
+func (c *Client) Query(op Operation) (*etree.Document, error) {
+	res, err := c.RawQuery(op)
+	if err != nil {
+		return nil, err
+	}
+
+	doc := etree.NewDocument()
+	doc.ReadFromBytes(res)
+
+	return doc, nil
 }
