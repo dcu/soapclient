@@ -124,11 +124,16 @@ type requestBody struct {
 	Operation Operation
 }
 
+// Operation defines an operation for the SOAP service
 type Operation struct {
-	Name     string
-	Data     map[string]interface{}
+	// Name is the name of the operation. It is mandatory.
+	Name string
+	// Data receives the data/body of the request for the operation. Mandatory.
+	Data map[string]interface{}
+	// Validate runs a validation of the signature before sending the request. Use it only for development
 	Validate bool
-	Verbose  bool
+	// Verbose enables the verbose mode which prints output of steps. Use it only for development
+	Verbose bool
 }
 
 func xmlTokensFor(i interface{}) []xml.Token {
@@ -152,6 +157,7 @@ func xmlTokensFor(i interface{}) []xml.Token {
 	return tokens
 }
 
+// MarshalXML marshals the Operation in XML. The keys of the operation Data are always sorted alphabetically.
 func (op Operation) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	start.Name = xml.Name{Local: "v1:" + op.Name}
 	start.Attr = append(start.Attr, xml.Attr{Name: xml.Name{Local: "xmlns:v1"}, Value: "http://ws.hc2.dc.com/v1"})

@@ -1,5 +1,9 @@
 # SoapClient
 
+SoapClient implements a simple SOAP client written in Go.
+It is not fully tested against the whole spec so it could not work for your use case.
+If that's the case please open an issue to keep track of it.
+
 ## Usage
 
 ```go

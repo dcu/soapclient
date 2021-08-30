@@ -21,10 +21,16 @@ type Client struct {
 	httpClient *http.Client
 }
 
+// ClientOpts defines the possible options to pass to a client
 type ClientOpts struct {
+	// Certificate is the tls certificate. It is mandatory
 	Certificate tls.Certificate
-	Username    string
-	Password    string
+
+	// Username for the UsernameToken as defined in https://www.oasis-open.org/committees/download.php/13392/wss-v1.1-spec-pr-UsernameTokenProfile-01.htm#_Toc104276211
+	Username string
+
+	// Password for the UsernameToken as defined in https://www.oasis-open.org/committees/download.php/13392/wss-v1.1-spec-pr-UsernameTokenProfile-01.htm#_Toc104276211
+	Password string
 }
 
 func (opts ClientOpts) validate() {
