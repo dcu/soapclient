@@ -1,6 +1,9 @@
 package soapclient
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+	"log"
+)
 
 type Envelope struct {
 	XMLName xml.Name    `xml:"soap-env:Envelope"`
@@ -125,6 +128,7 @@ type Operation struct {
 	Name     string
 	Data     map[string]interface{}
 	Validate bool
+	Verbose  bool
 }
 
 func xmlTokensFor(i interface{}) []xml.Token {
@@ -134,13 +138,15 @@ func xmlTokensFor(i interface{}) []xml.Token {
 	case string:
 		tokens = append(tokens, xml.CharData(v))
 	case map[string]interface{}:
-		for key, value := range v {
+		eachSortedKeyValue(v, func(key string, value interface{}) {
 			t := xml.StartElement{Name: xml.Name{Local: "v1:" + key}}
 
 			tokens = append(tokens, t)
 			tokens = append(tokens, xmlTokensFor(value)...)
 			tokens = append(tokens, xml.EndElement{Name: t.Name})
-		}
+		})
+	default:
+		log.Panicf("type %T not supported", i)
 	}
 
 	return tokens
@@ -152,13 +158,13 @@ func (op Operation) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 
 	tokens := []xml.Token{start}
 
-	for key, value := range op.Data {
+	eachSortedKeyValue(op.Data, func(key string, value interface{}) {
 		t := xml.StartElement{Name: xml.Name{Local: "v1:" + key}}
 
 		tokens = append(tokens, t)
 		tokens = append(tokens, xmlTokensFor(value)...)
 		tokens = append(tokens, xml.EndElement{Name: t.Name})
-	}
+	})
 
 	tokens = append(tokens, xml.EndElement{Name: start.Name})
 

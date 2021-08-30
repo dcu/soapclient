@@ -7,6 +7,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 
@@ -167,6 +168,10 @@ func (c *Client) RawQuery(op Operation) ([]byte, error) {
 		if err != nil {
 			return nil, fmt.Errorf("error validating: %w", err)
 		}
+	}
+
+	if op.Verbose {
+		log.Printf("REQUEST: %s", signedXML)
 	}
 
 	req, err := http.NewRequest("POST", c.url, strings.NewReader(signedXML))
