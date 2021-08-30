@@ -132,8 +132,6 @@ type Operation struct {
 	Data map[string]interface{}
 	// Validate runs a validation of the signature before sending the request. Use it only for development
 	Validate bool
-	// Verbose enables the verbose mode which prints output of steps. Use it only for development
-	Verbose bool
 }
 
 func xmlTokensFor(i interface{}) []xml.Token {

@@ -31,6 +31,9 @@ type ClientOpts struct {
 
 	// Password for the UsernameToken as defined in https://www.oasis-open.org/committees/download.php/13392/wss-v1.1-spec-pr-UsernameTokenProfile-01.htm#_Toc104276211
 	Password string
+
+	// Debug enables the verbose mode which prints output of steps. Use it only for development
+	Debug bool
 }
 
 func (opts ClientOpts) validate() {
@@ -146,6 +149,44 @@ func (c *Client) buildEnvelope(op Operation) *envelope {
 	return envelope
 }
 
+// ListOperations lists all supported operations by the service
+func (c *Client) ListOperations() ([]string, error) {
+	req, err := http.NewRequest("GET", c.url+"?wsdl", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() { _ = response.Body.Close() }()
+
+	data, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if c.opts.Debug {
+		log.Printf("RESPONSE: %s", data)
+	}
+
+	doc := etree.NewDocument()
+	err = doc.ReadFromBytes(data)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]string, 0)
+	ops := doc.FindElements("//wsdl:binding/wsdl:operation")
+	for _, op := range ops {
+		result = append(result, op.SelectAttrValue("name", ""))
+	}
+
+	return result, nil
+}
+
 // RawQuery does a query and returns the response
 func (c *Client) RawQuery(op Operation) ([]byte, error) {
 	envelope := c.buildEnvelope(op)
@@ -177,7 +218,7 @@ func (c *Client) RawQuery(op Operation) ([]byte, error) {
 		}
 	}
 
-	if op.Verbose {
+	if c.opts.Debug {
 		log.Printf("REQUEST: %s", signedXML)
 	}
 
@@ -195,7 +236,7 @@ func (c *Client) RawQuery(op Operation) ([]byte, error) {
 
 	data, err := ioutil.ReadAll(response.Body)
 
-	if op.Verbose {
+	if c.opts.Debug {
 		log.Println("RESPONSE:", string(data))
 	}
 
