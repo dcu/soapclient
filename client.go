@@ -255,3 +255,5 @@ func (c *Client) Query(op Operation) (*etree.Document, error) {
 
 	return doc, nil
 }
+
+var _ ClientIface = &Client{}
