@@ -28,15 +28,15 @@ func generateID(prefix string) string {
 	return prefix + "-" + generateRandomHexString(16)
 }
 
-func eachSortedKeyValue(m map[string]interface{}, cb func(key string, value interface{})) {
-	keys := []string{}
-	for k := range m {
-		keys = append(keys, k)
+func InOrder(keys ...string) func([]string) {
+	indexes := make(map[string]int, len(keys))
+	for i, k := range keys {
+		indexes[k] = i
 	}
 
-	sort.Strings(keys)
-
-	for _, k := range keys {
-		cb(k, m[k])
+	return func(input []string) {
+		sort.Slice(input, func(i, j int) bool {
+			return indexes[input[i]] < indexes[input[j]]
+		})
 	}
 }

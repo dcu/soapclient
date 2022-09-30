@@ -3,6 +3,7 @@ package soapclient
 import (
 	"encoding/xml"
 	"log"
+	"sort"
 )
 
 type envelope struct {
@@ -129,23 +130,27 @@ type Operation struct {
 	// Name is the name of the operation. It is mandatory.
 	Name string
 	// Data receives the data/body of the request for the operation. Mandatory.
-	Data map[string]interface{}
+	Data map[string]any
 	// Validate runs a validation of the signature before sending the request. Use it only for development
 	Validate bool
+
+	V1 string
+
+	SortKeysFn func([]string)
 }
 
-func xmlTokensFor(i interface{}) []xml.Token {
+func (op Operation) xmlTokensFor(i interface{}) []xml.Token {
 	tokens := []xml.Token{}
 
 	switch v := i.(type) {
 	case string:
 		tokens = append(tokens, xml.CharData(v))
 	case map[string]interface{}:
-		eachSortedKeyValue(v, func(key string, value interface{}) {
+		op.eachSortedKeyValue(v, func(key string, value interface{}) {
 			t := xml.StartElement{Name: xml.Name{Local: "v1:" + key}}
 
 			tokens = append(tokens, t)
-			tokens = append(tokens, xmlTokensFor(value)...)
+			tokens = append(tokens, op.xmlTokensFor(value)...)
 			tokens = append(tokens, xml.EndElement{Name: t.Name})
 		})
 	default:
@@ -158,15 +163,15 @@ func xmlTokensFor(i interface{}) []xml.Token {
 // MarshalXML marshals the Operation in XML. The keys of the operation Data are always sorted alphabetically.
 func (op Operation) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	start.Name = xml.Name{Local: "v1:" + op.Name}
-	start.Attr = append(start.Attr, xml.Attr{Name: xml.Name{Local: "xmlns:v1"}, Value: "http://ws.hc2.dc.com/v1"})
+	start.Attr = append(start.Attr, xml.Attr{Name: xml.Name{Local: "xmlns:v1"}, Value: op.V1})
 
 	tokens := []xml.Token{start}
 
-	eachSortedKeyValue(op.Data, func(key string, value interface{}) {
+	op.eachSortedKeyValue(op.Data, func(key string, value interface{}) {
 		t := xml.StartElement{Name: xml.Name{Local: "v1:" + key}}
 
 		tokens = append(tokens, t)
-		tokens = append(tokens, xmlTokensFor(value)...)
+		tokens = append(tokens, op.xmlTokensFor(value)...)
 		tokens = append(tokens, xml.EndElement{Name: t.Name})
 	})
 
@@ -180,4 +185,21 @@ func (op Operation) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	}
 
 	return e.Flush()
+}
+
+func (op Operation) eachSortedKeyValue(m map[string]interface{}, cb func(key string, value interface{})) {
+	keys := []string{}
+	for k := range m {
+		keys = append(keys, k)
+	}
+
+	if op.SortKeysFn == nil {
+		op.SortKeysFn = sort.Strings
+	}
+
+	op.SortKeysFn(keys)
+
+	for _, k := range keys {
+		cb(k, m[k])
+	}
 }

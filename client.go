@@ -34,6 +34,9 @@ type ClientOpts struct {
 
 	// Debug enables the verbose mode which prints output of steps. Use it only for development
 	Debug bool
+
+	// V1 set the v1 namespace value for the operation
+	V1 string
 }
 
 func (opts ClientOpts) validate() {
@@ -68,6 +71,10 @@ func (opts ClientOpts) getCertInfo() (string, string) {
 // New creates a new Client. This client is supposed to be shared between threads
 func New(url string, opts ClientOpts) *Client {
 	opts.validate()
+
+	if len(opts.V1) == 0 {
+		opts.V1 = "http://ws.hc2.dc.com/v1"
+	}
 
 	return &Client{
 		url:        url,
@@ -141,7 +148,7 @@ func (c *Client) buildEnvelope(op Operation) *envelope {
 
 	envelope := &envelope{
 		Soapenv: "http://schemas.xmlsoap.org/soap/envelope/",
-		V1:      "http://ws.hc2.dc.com/v1",
+		V1:      c.opts.V1,
 		Body:    body,
 		Header:  reqHeader,
 	}
@@ -245,6 +252,10 @@ func (c *Client) RawQuery(op Operation) ([]byte, error) {
 
 // Query performs the query and returns a *etree.Document
 func (c *Client) Query(op Operation) (*etree.Document, error) {
+	if op.V1 == "" {
+		op.V1 = c.opts.V1
+	}
+
 	res, err := c.RawQuery(op)
 	if err != nil {
 		return nil, err
